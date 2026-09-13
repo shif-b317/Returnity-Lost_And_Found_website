@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}About RETURNITY - Lost and Found Management System{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem;">
+  <div class="card" style="padding: 2.5rem 3rem; margin-bottom: 2.5rem;">
+    <span class="section-kicker">Project Philosophy & Architecture</span>
+    <h1 style="font-size: 2.3rem; margin-bottom: 1.25rem;">About RETURNITY</h1>
+    
+    <p style="font-size: 1.08rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.5rem;">
+      RETURNITY is a specialized Lost and Found Management Platform developed as an MCA project. The system addresses a fundamental flaw found in traditional lost and found bulletin boards: anyone could view publicly posted items and dishonestly claim them by simply repeating the description provided by the finder.
+    </p>
+
+    <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2rem;">
+      RETURNITY solves this vulnerability by separating public item information from private verification details, introducing a rule-based decision support system, and empowering authorized administrators to review ownership claims with transparent scoring metrics.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 2rem 0;">
+
+    <h2 style="font-size: 1.6rem; color: var(--color-tamarind); margin-bottom: 1rem;">Core Pillars of the System</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.75rem; margin-bottom: 2.5rem;">
+      <div style="background-color: var(--bg-subtle); padding: 1.5rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-rubine);">
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-rubine);">1. Dual Information Division</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+          When an owner reports a lost item, they submit both public indicators (item category, general location, approximate date) and private indicators (unique scratches, hidden engraving, wallpaper photo, serial number). The private indicators remain strictly hidden from the public and prospective claimants.
+        </p>
+      </div>
+
+      <div style="background-color: var(--bg-subtle); padding: 1.5rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-boho);">
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-boho);">2. Interactive Verification</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+          A user claiming an item must answer specific questions regarding features not visible on the listing. They cannot see what details the reporter provided, preventing impersonation and social engineering attempts.
+        </p>
+      </div>
+
+      <div style="background-color: var(--bg-subtle); padding: 1.5rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-tamarind);">
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-tamarind);">3. Rule-Based Decision Support</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+          Claims are evaluated against rule-based criteria yielding a score from 0 to 100. Factors include private detail alignment, location consistency, date proximity, and optional ownership receipts. Suspicious velocity patterns are highlighted for administrator attention.
+        </p>
+      </div>
+    </div>
+
+    <h2 style="font-size: 1.6rem; color: var(--color-tamarind); margin-bottom: 1rem;">Protection Against Fraudulent Claims</h2>
+    <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+      RETURNITY actively detects and deters fraudulent behavior using specific safeguards:
+    </p>
+    <ul style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2rem;">
+      <li><strong>Multiple Claims Containment:</strong> When multiple individuals claim the same item, the system locks the item in an administrative review queue rather than conceding it on a first-come basis.</li>
+      <li><strong>Velocity Checks:</strong> Claimants generating repeated claims in short intervals or maintaining histories of rejected claims are automatically flagged for manual evaluation.</li>
+      <li><strong>Public Echo Detection:</strong> Responses that merely regurgitate words already present in the public listing are penalized by the verification formula.</li>
+      <li><strong>Isolated Evidence Storage:</strong> Ownership proof (such as invoices or warranty slips) is stored in protected storage outside the public web root and accessible solely to authorized reviewers.</li>
+    </ul>
+
+    <div class="privacy-callout">
+      <div class="privacy-callout-title">Notice Regarding Administrative Authority</div>
+      <div class="privacy-callout-text">
+        The Claim Verification System serves as decision support, not an autonomous arbiter. Final decisions to approve, reject, or request supplementary information remain under the jurisdiction of verified platform administrators.
+      </div>
+    </div>
+
+    <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report a Lost Item</a>
+      <a href="{{ url_for('report_found') }}" class="btn btn-secondary">Report a Found Item</a>
+      <a href="{{ url_for('search') }}" class="btn btn-outline">Explore Directory</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

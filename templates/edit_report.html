@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Report #{{ item_type|upper }}-{{ item.id }} - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div class="section-title-wrap" style="text-align: left; margin-bottom: 1.5rem;">
+    <span class="section-kicker">Update Record</span>
+    <h1 class="section-title">Edit {{ item_type|capitalize }} Report</h1>
+    <p class="section-desc" style="margin-left: 0;">
+      Modify the listing parameters for #{{ item_type|upper }}-{{ item.id }}.
+    </p>
+  </div>
+
+  <form action="{{ url_for('edit_report', item_type=item_type, item_id=item.id) }}" method="POST" enctype="multipart/form-data" class="form-card">
+    <div class="form-group">
+      <label for="editItemName">Item Name <span class="required-asterisk">*</span></label>
+      <input type="text" id="editItemName" name="item_name" class="form-control" value="{{ item.item_name }}" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="editCategory">Category <span class="required-asterisk">*</span></label>
+        <select id="editCategory" name="category_id" class="form-control" required>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if cat.id == item.category_id %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editDate">Date {{ 'Lost' if item_type == 'lost' else 'Found' }} <span class="required-asterisk">*</span></label>
+        <input type="date" id="editDate" name="event_date" class="form-control" value="{{ item.event_date.strftime('%Y-%m-%d') if item.event_date else '' }}" data-max-today required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="editTime">Approximate Time</label>
+        <input type="text" id="editTime" name="approximate_time" class="form-control" value="{{ item.approximate_time or '' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="editLocation">Location <span class="required-asterisk">*</span></label>
+        <input type="text" id="editLocation" name="location" class="form-control" value="{{ item.location }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="editDescription">Description <span class="required-asterisk">*</span></label>
+      <textarea id="editDescription" name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="editImage">Replace Photograph (Optional)</label>
+      <input type="file" id="editImage" name="safe_image" class="form-control" accept=".jpg,.jpeg,.png,.webp" data-preview-target="editImagePreview">
+      <span class="form-help">Leave blank to retain current image. Max size: 5 MB.</span>
+      <div id="editImagePreview">
+        {% if item.safe_image_path %}
+          <div style="margin-top: 0.5rem;">
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Current Photo:</span>
+            <img src="{{ url_for('uploaded_item_file', filename=item.safe_image_path) }}" alt="Current" style="height: 100px; width: auto; border-radius: 4px; margin-top: 0.25rem;">
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if item_type == 'lost' %}
+      <div class="verification-box">
+        <div class="verification-box-title">Private Verification Details (Encrypted)</div>
+        <div class="verification-box-text">These fields are kept confidential and used solely for claim assessment.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="editPrivateDetail">Private Identifying Detail <span class="required-asterisk">*</span></label>
+        <textarea id="editPrivateDetail" name="private_identifying_detail" class="form-control" rows="2" required>{{ item.private_identifying_detail }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="editPrivateDistinctive">Secondary Marks or Customizations</label>
+        <textarea id="editPrivateDistinctive" name="private_distinctive_characteristic" class="form-control" rows="2">{{ item.private_distinctive_characteristic or '' }}</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editPrivateContents">Contents</label>
+          <input type="text" id="editPrivateContents" name="private_contents" class="form-control" value="{{ item.private_contents or '' }}">
+        </div>
+
+        <div class="form-group">
+          <label for="editPrivateSerial">Serial Number / IMEI</label>
+          <input type="text" id="editPrivateSerial" name="private_serial_or_id" class="form-control" value="{{ item.private_serial_or_id or '' }}">
+        </div>
+      </div>
+    {% else %}
+      <div class="form-group">
+        <label for="editCustody">Safe Storage Location</label>
+        <input type="text" id="editCustody" name="custody_location" class="form-control" value="{{ item.custody_location or '' }}">
+      </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="editStatus">Listing Status</label>
+      <select id="editStatus" name="status" class="form-control">
+        <option value="Active" {% if item.status == 'Active' %}selected{% endif %}>Active</option>
+        <option value="Claim Pending" {% if item.status == 'Claim Pending' %}selected{% endif %}>Claim Pending</option>
+        <option value="Under Verification" {% if item.status == 'Under Verification' %}selected{% endif %}>Under Verification</option>
+        <option value="Claimed" {% if item.status == 'Claimed' %}selected{% endif %}>Claimed</option>
+        <option value="Returned" {% if item.status == 'Returned' %}selected{% endif %}>Returned</option>
+        <option value="Closed" {% if item.status == 'Closed' %}selected{% endif %}>Closed</option>
+      </select>
+    </div>
+
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+      <button type="submit" class="btn btn-primary btn-lg">Save Modifications</button>
+      <a href="{{ url_for('my_reports') }}" class="btn btn-outline" style="margin-left: 0.75rem;">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

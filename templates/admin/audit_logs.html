@@ -1,0 +1,75 @@
+{% extends "admin/base.html" %}
+
+{% block title %}System Audit Logs - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">Security & Verification Traceability</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Security & Claim Audit Trail</h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Immutable chronological record of administrative actions, claim status updates, and verification decisions.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    {% if logs %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Log ID</th>
+              <th>Date & Time</th>
+              <th>Action Category</th>
+              <th>Context Reference</th>
+              <th>Actor / Responsible</th>
+              <th>Operational Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+              <tr>
+                <td><strong>#LOG-{{ log.id }}</strong></td>
+                <td style="white-space: nowrap; font-size: 0.82rem;">
+                  {{ log.created_at.strftime('%d %b %Y, %I:%M:%S %p') if log.created_at else '' }}
+                </td>
+                <td>
+                  <span class="badge badge-review" style="font-size: 0.8rem;">
+                    {{ log.action }}
+                  </span>
+                </td>
+                <td>
+                  {% if log.claim_id %}
+                    <a href="{{ url_for('admin_claim_review', claim_id=log.claim_id) }}" style="font-weight: 600;">
+                      Claim #CLM-{{ log.claim_id }}
+                    </a>
+                  {% elif log.item_id %}
+                    {{ log.item_type|upper }} #{{ log.item_id }}
+                  {% else %}
+                    System
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ log.user_name or 'System Engine' }}</strong>
+                  {% if log.user_email %}
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ log.user_email }}</div>
+                  {% endif %}
+                </td>
+                <td style="font-size: 0.88rem; color: var(--text-secondary); max-width: 320px;">
+                  {{ log.notes or '' }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        No audit log events recorded yet.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

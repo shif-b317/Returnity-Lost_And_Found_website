@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}RETURNITY - Lost and Found Management System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="hero-subtitle">Official Lost & Found Platform</span>
+        <h1 class="hero-title">Lost it? Return to it.</h1>
+        <p class="hero-description">
+          A structured management system built to connect lost belongings with their rightful owners. Report misplaced items, log discovered articles, and securely verify ownership through rule-based claim validation.
+        </p>
+        <div class="hero-actions">
+          <a href="{{ url_for('report_lost') }}" class="btn btn-primary btn-lg">Report Lost Item</a>
+          <a href="{{ url_for('report_found') }}" class="btn btn-secondary btn-lg">Report Found Item</a>
+          <a href="{{ url_for('search') }}" class="btn btn-outline-light btn-lg">Search All Items</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="hero-emblem-card">
+          <img src="{{ url_for('static', filename='images/returnity_logo.jpg') }}" alt="RETURNITY Official Emblem" class="hero-emblem-img">
+          <div class="hero-emblem-caption">
+            LOST AND FOUND FOR A KINDER TOMORROW
+          </div>
+          <p style="font-size: 0.85rem; color: var(--color-camel-light); margin-top: 0.75rem; opacity: 0.85;">
+            Verified ownership checks protect against false claims and unauthorized pickups.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search Quick Bar -->
+<section style="background-color: var(--color-camel-light); padding: 1.75rem 0; border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <form action="{{ url_for('search') }}" method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <input type="text" name="q" class="form-control" placeholder="Search by item name, keyword, or identifier..." style="flex: 2; min-width: 240px; background-color: #FFFFFF;">
+      <select name="category" class="form-control" style="flex: 1; min-width: 180px; background-color: #FFFFFF;">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}">{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="type" class="form-control" style="flex: 0.8; min-width: 140px; background-color: #FFFFFF;">
+        <option value="">All Types</option>
+        <option value="lost">Lost Only</option>
+        <option value="found">Found Only</option>
+      </select>
+      <button type="submit" class="btn btn-primary" style="padding-left: 1.75rem; padding-right: 1.75rem;">Search</button>
+    </form>
+  </div>
+</section>
+
+<!-- How The System Works -->
+<section class="section" style="background-color: var(--bg-page);">
+  <div class="container">
+    <div class="section-title-wrap">
+      <span class="section-kicker">Transparent Architecture</span>
+      <h2 class="section-title">How RETURNITY Works</h2>
+      <p class="section-desc">
+        A multi-tier verification process designed to reduce false claims and assist administrators with objective decision support.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+      <div class="card" style="padding: 2rem; border-top: 4px solid var(--color-rubine);">
+        <div style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--color-rubine); margin-bottom: 0.5rem;">01</div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Report with Split Information</h3>
+        <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
+          When an item is reported, general details and safe photos are made public. Hidden markings, serial numbers, and private identifying details are held securely for ownership verification only.
+        </p>
+      </div>
+
+      <div class="card" style="padding: 2rem; border-top: 4px solid var(--color-boho);">
+        <div style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--color-boho); margin-bottom: 0.5rem;">02</div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Submit Verification Claim</h3>
+        <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
+          Claimants must answer specific questions regarding private characteristics without seeing the answers. Optional purchase receipts or warranty proof can be securely attached.
+        </p>
+      </div>
+
+      <div class="card" style="padding: 2rem; border-top: 4px solid var(--color-tamarind);">
+        <div style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--color-tamarind); margin-bottom: 0.5rem;">03</div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Rule-Based Verification & Review</h3>
+        <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
+          The system calculates a rule-based Claim Verification Score, flags potential contradictions or duplicate requests, and submits the claim to the administrator for final authorized approval.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Items Section (Live Data from MySQL) -->
+<section class="section" style="background-color: #FFFFFF; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="section-kicker">Live Database Feed</span>
+        <h2 class="section-title" style="margin-bottom: 0;">Recently Reported Items</h2>
+      </div>
+      <a href="{{ url_for('search') }}" class="btn btn-outline">View All Listings</a>
+    </div>
+
+    {% if recent_items %}
+      <div class="item-grid">
+        {% for item in recent_items %}
+          <div class="card item-card">
+            <div class="item-card-media">
+              {% if item.safe_image_path %}
+                <img src="{{ url_for('uploaded_item_file', filename=item.safe_image_path) }}" alt="{{ item.item_name }}">
+              {% else %}
+                <div class="item-card-placeholder">
+                  <span>{{ item.category_name }}</span>
+                </div>
+              {% endif %}
+              
+              {% if item.item_type == 'lost' %}
+                <span class="item-type-badge item-type-lost">Lost</span>
+              {% else %}
+                <span class="item-type-badge item-type-found">Found</span>
+              {% endif %}
+
+              <span class="item-status-badge">{{ item.status }}</span>
+            </div>
+
+            <div class="item-card-content">
+              <div class="item-card-meta">
+                <span>{{ item.category_name }}</span>
+                <span>•</span>
+                <span>{{ item.event_date.strftime('%d %b %Y') if item.event_date else 'Date recorded' }}</span>
+              </div>
+              <h3 class="item-card-title">{{ item.item_name }}</h3>
+              <p class="item-card-desc">{{ item.description }}</p>
+
+              <div class="item-card-details">
+                <div class="item-card-details-row">
+                  <strong style="color: var(--color-boho);">Location:</strong>
+                  <span>{{ item.location }}</span>
+                </div>
+                <div style="margin-top: 0.85rem;">
+                  <a href="{{ url_for('item_details', item_type=item.item_type, item_id=item.id) }}" class="btn btn-sm btn-outline btn-block">
+                    View Details & Verify
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="form-card" style="text-align: center; padding: 3rem;">
+        <h3 style="color: var(--color-boho); margin-bottom: 0.5rem;">No Active Reports Currently Listed</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+          Be the first community member to log a misplaced or discovered article.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+          <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report Lost Item</a>
+          <a href="{{ url_for('report_found') }}" class="btn btn-secondary">Report Found Item</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Item Categories Section -->
+<section class="section">
+  <div class="container">
+    <div class="section-title-wrap">
+      <span class="section-kicker">Catalog</span>
+      <h2 class="section-title">Item Classifications</h2>
+      <p class="section-desc">
+        Browse items by dedicated category to facilitate faster matching between reports.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+      {% for cat in categories %}
+        <a href="{{ url_for('search', category=cat.id) }}" class="card" style="padding: 1.25rem; text-decoration: none; border-left: 3px solid var(--color-boho); transition: all 0.2s ease;">
+          <h4 style="font-size: 1.05rem; color: var(--color-italian-roast); margin-bottom: 0.25rem;">{{ cat.name }}</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">{{ cat.description }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

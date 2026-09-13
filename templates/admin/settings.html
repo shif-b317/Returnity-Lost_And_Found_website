@@ -1,0 +1,123 @@
+{% extends "admin/base.html" %}
+
+{% block title %}System Settings - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.75rem;">
+  <span class="section-kicker">Configuration</span>
+  <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">System Configuration & Categories</h1>
+  <p style="font-size: 0.9rem; color: var(--text-secondary);">
+    Manage classification categories and review application runtime configurations.
+  </p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 2rem;">
+  
+  <!-- Categories Management -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="font-size: 1.15rem; margin-bottom: 0;">Item Categories ({{ categories|length }})</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Category Name</th>
+              <th>Description</th>
+              <th>Items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+              <tr>
+                <td><strong>#{{ cat.id }}</strong></td>
+                <td><strong>{{ cat.name }}</strong></td>
+                <td style="font-size: 0.82rem; color: var(--text-secondary);">{{ cat.description }}</td>
+                <td>
+                  <span class="badge badge-active">{{ cat.item_count }}</span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Add Category Form -->
+    <div class="card-footer" style="background: #FFFFFF;">
+      <h4 style="font-size: 1rem; color: var(--color-tamarind); margin-bottom: 0.75rem;">Add New Category</h4>
+      <form action="{{ url_for('admin_add_category') }}" method="POST">
+        <div class="form-group">
+          <label for="catName">Category Title <span class="required-asterisk">*</span></label>
+          <input type="text" id="catName" name="name" class="form-control" placeholder="e.g., Sporting Goods & Gym Equipment" required>
+        </div>
+        <div class="form-group">
+          <label for="catDesc">Description</label>
+          <input type="text" id="catDesc" name="description" class="form-control" placeholder="Brief scope of items classified">
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">Create Category</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Environment & Deployment Information Card -->
+  <div>
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-header">
+        <h3 style="font-size: 1.15rem; margin-bottom: 0;">System Environment</h3>
+      </div>
+      <div class="card-body">
+        <table class="detail-table" style="margin: 0;">
+          <tbody>
+            <tr>
+              <th>Framework</th>
+              <td>Python Flask (WSGI)</td>
+            </tr>
+            <tr>
+              <th>Database</th>
+              <td>MySQL / MariaDB via mysql-connector-python</td>
+            </tr>
+            <tr>
+              <th>Templating</th>
+              <td>Jinja2 Standard</td>
+            </tr>
+            <tr>
+              <th>Auth Security</th>
+              <td>Werkzeug Scrypt Hashes + HTTPOnly Sessions</td>
+            </tr>
+            <tr>
+              <th>Upload Max</th>
+              <td>5.0 MB</td>
+            </tr>
+            <tr>
+              <th>Evidence Isolation</th>
+              <td>Isolated Private Webroot</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 style="font-size: 1.15rem; margin-bottom: 0;">Rule-Based Scoring Parameters</h3>
+      </div>
+      <div class="card-body" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+        <p style="margin-bottom: 0.5rem;"><strong>Decision-Support Weights:</strong></p>
+        <ul style="margin-left: 1.25rem;">
+          <li>Private Identifying Detail: +25</li>
+          <li>Distinctive Characteristic: +20</li>
+          <li>Ownership Evidence File: +20</li>
+          <li>Location Consistency: +15</li>
+          <li>Date Proximity Alignment: +10</li>
+          <li>Verified Account: +5</li>
+          <li>Contradiction / Rapid Filing: -15 to -20</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}My Reports - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="section-kicker">Manage Listings</span>
+      <h1 class="section-title" style="margin-bottom: 0;">My Reported Items</h1>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report Lost Item</a>
+      <a href="{{ url_for('report_found') }}" class="btn btn-secondary">Report Found Item</a>
+    </div>
+  </div>
+
+  <!-- Lost Reports Section -->
+  <div class="card" style="margin-bottom: 2.5rem;">
+    <div class="card-header">
+      <h2 style="font-size: 1.25rem; margin-bottom: 0; color: var(--color-tamarind);">My Lost Item Reports</h2>
+      <span class="badge badge-active">{{ lost_items|length }} Total</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      {% if lost_items %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Item Reference</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Date Lost</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in lost_items %}
+                <tr>
+                  <td><strong>#LOST-{{ item.id }}</strong></td>
+                  <td>
+                    <a href="{{ url_for('item_details', item_type='lost', item_id=item.id) }}" style="font-weight: 600;">
+                      {{ item.item_name }}
+                    </a>
+                  </td>
+                  <td>{{ item.category_name }}</td>
+                  <td>{{ item.date_lost.strftime('%d %b %Y') if item.date_lost else '' }}</td>
+                  <td>{{ item.location_lost }}</td>
+                  <td>
+                    <span class="badge badge-active">{{ item.status }}</span>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <a href="{{ url_for('edit_report', item_type='lost', item_id=item.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                      <form action="{{ url_for('delete_report', item_type='lost', item_id=item.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" data-confirm="Are you certain you wish to delete this lost report? This action cannot be reversed.">
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+          No lost items currently reported by your account.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Found Reports Section -->
+  <div class="card">
+    <div class="card-header">
+      <h2 style="font-size: 1.25rem; margin-bottom: 0; color: var(--color-boho-dark);">My Found Item Reports</h2>
+      <span class="badge badge-active">{{ found_items|length }} Total</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      {% if found_items %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Item Reference</th>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Date Found</th>
+                <th>Location Found</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in found_items %}
+                <tr>
+                  <td><strong>#FOUND-{{ item.id }}</strong></td>
+                  <td>
+                    <a href="{{ url_for('item_details', item_type='found', item_id=item.id) }}" style="font-weight: 600;">
+                      {{ item.item_name }}
+                    </a>
+                  </td>
+                  <td>{{ item.category_name }}</td>
+                  <td>{{ item.date_found.strftime('%d %b %Y') if item.date_found else '' }}</td>
+                  <td>{{ item.location_found }}</td>
+                  <td>
+                    <span class="badge badge-active">{{ item.status }}</span>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <a href="{{ url_for('edit_report', item_type='found', item_id=item.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                      <form action="{{ url_for('delete_report', item_type='found', item_id=item.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" data-confirm="Are you certain you wish to delete this found report?">
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+          No found items currently reported by your account.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

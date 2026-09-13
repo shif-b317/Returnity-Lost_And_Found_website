@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Claim Verification - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div class="section-title-wrap" style="text-align: left; margin-bottom: 1.5rem;">
+    <span class="section-kicker">Ownership Verification</span>
+    <h1 class="section-title">Submit Verification Claim</h1>
+    <p class="section-desc" style="margin-left: 0;">
+      Filing a claim for: <strong>{{ item.item_name }}</strong> (Ref: #{{ item_type|upper }}-{{ item.id }}).
+    </p>
+  </div>
+
+  <div class="privacy-callout">
+    <div class="privacy-callout-title">Notice Regarding Claim Verification</div>
+    <div class="privacy-callout-text">
+      To maintain integrity and prevent fraudulent possession of personal belongings, claims are not automatically approved upon submission. You must demonstrate genuine ownership by answering questions regarding characteristics not visible in public listings. All submissions undergo administrative review.
+    </div>
+  </div>
+
+  <form action="{{ url_for('submit_claim', item_type=item_type, item_id=item.id) }}" method="POST" enctype="multipart/form-data" class="form-card">
+    
+    <div class="form-group">
+      <label for="qIdentify">1. How did you identify this item as belonging to you? <span class="required-asterisk">*</span></label>
+      <textarea id="qIdentify" name="q_identify" class="form-control" rows="2" placeholder="Explain how you recognized this listing (e.g., location match, timeline, physical appearance)." required></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="qLocation">2. Where did you misplace or lose the item? <span class="required-asterisk">*</span></label>
+        <input type="text" id="qLocation" name="q_location" class="form-control" placeholder="Specify building, floor, room number, or specific area" required>
+      </div>
+
+      <div class="form-group">
+        <label for="qTime">3. Approximately when did you lose it? <span class="required-asterisk">*</span></label>
+        <input type="text" id="qTime" name="q_time" class="form-control" placeholder="e.g., 2026-09-10 around 11:15 AM during library visit" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="qPrivateFeatures">
+        4. Describe distinctive features not visible in the public listing <span class="required-asterisk">*</span>
+      </label>
+      <textarea id="qPrivateFeatures" name="q_private_features" class="form-control" rows="3" placeholder="Describe unique attributes known only to the genuine owner. For example: lock screen picture, brand of case, specific items kept inside, private engravings." required></textarea>
+      <span class="form-help">Merely repeating the public description will lower your verification score.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="qScratches">5. Describe scratches, unique marks, stickers or customizations</label>
+      <textarea id="qScratches" name="q_scratches" class="form-control" rows="2" placeholder="Specify any wear patterns, hairline scratches, sticker motifs, or unique identifying blemishes."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="qAccessories">6. Describe unique accessories associated with the item</label>
+      <input type="text" id="qAccessories" name="q_accessories" class="form-control" placeholder="e.g., specific brand lanyard, attached keychain, adapter type, protective sleeve">
+    </div>
+
+    <div class="form-group">
+      <label for="qAdditional">7. Additional corroborating information</label>
+      <textarea id="qAdditional" name="q_additional" class="form-control" rows="2" placeholder="Any serial prefix, IMEI snippet, purchase retailer, or contextual facts that establish ownership."></textarea>
+    </div>
+
+    <!-- Evidence Upload -->
+    <div style="background-color: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 1.5rem; margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; color: var(--color-italian-roast); margin-bottom: 0.35rem;">
+        8. Ownership Evidence (Optional but Highly Recommended)
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+        Legitimate documentation significantly increases your verification confidence score. Examples: purchase receipt, store invoice, warranty card, product box photo, previous photograph of you with the item.
+      </p>
+
+      <div class="form-group">
+        <label for="evidenceFile">Upload Evidence Document / Photo</label>
+        <input type="file" id="evidenceFile" name="evidence_file" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf" data-preview-target="evidencePreview">
+        <span class="form-help">Accepted formats: JPG, PNG, WEBP, PDF. Max size: 5 MB. Files are stored in secure restricted storage.</span>
+        <div id="evidencePreview"></div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="evidenceDescription">Evidence Description</label>
+        <input type="text" id="evidenceDescription" name="evidence_description" class="form-control" placeholder="e.g., Original Amazon invoice showing serial number FK12890X">
+      </div>
+    </div>
+
+    <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+      By submitting, you certify under platform guidelines that you are the authentic owner of this item. Submitting fraudulent claims for property belonging to others will result in permanent account suspension.
+    </div>
+
+    <div>
+      <button type="submit" class="btn btn-primary btn-lg">Submit Claim for Verification</button>
+      <a href="{{ url_for('item_details', item_type=item_type, item_id=item.id) }}" class="btn btn-outline" style="margin-left: 0.75rem;">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

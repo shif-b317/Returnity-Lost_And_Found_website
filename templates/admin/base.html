@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Console - RETURNITY{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}">
+  <link rel="alternate icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <div class="admin-shell">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="{{ url_for('static', filename='images/logo_icon.svg') }}" alt="RETURNITY" style="height: 38px; width: auto;">
+        <div>
+          <div style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--color-camel); letter-spacing: 1.5px; line-height: 1;">
+            RETURNITY
+          </div>
+          <div style="font-size: 0.72rem; color: var(--color-camel-light); opacity: 0.8; letter-spacing: 0.5px;">
+            Administrative Console
+          </div>
+        </div>
+      </div>
+
+      <ul class="admin-nav">
+        <li class="admin-nav-item {% if active_admin == 'dashboard' %}active{% endif %}">
+          <a href="{{ url_for('admin_dashboard') }}">
+            <span>Console Overview</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'claims' %}active{% endif %}">
+          <a href="{{ url_for('admin_claims') }}">
+            <span>Verification Claims</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'reports' %}active{% endif %}">
+          <a href="{{ url_for('admin_reports') }}">
+            <span>All Item Reports</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'lost' %}active{% endif %}">
+          <a href="{{ url_for('admin_lost_items') }}">
+            <span>Lost Items (Private Data)</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'found' %}active{% endif %}">
+          <a href="{{ url_for('admin_found_items') }}">
+            <span>Found Items (Custody)</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'users' %}active{% endif %}">
+          <a href="{{ url_for('admin_users') }}">
+            <span>User Accounts</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'audit' %}active{% endif %}">
+          <a href="{{ url_for('admin_audit_logs') }}">
+            <span>Audit Trail Logs</span>
+          </a>
+        </li>
+        <li class="admin-nav-item {% if active_admin == 'settings' %}active{% endif %}">
+          <a href="{{ url_for('admin_settings') }}">
+            <span>System Categories</span>
+          </a>
+        </li>
+        <li style="margin-top: 2rem; border-top: 1px solid rgba(198, 179, 154, 0.2); padding-top: 1rem;">
+          <a href="{{ url_for('index') }}" target="_blank" style="padding: 0.6rem 1.35rem; color: var(--color-camel); font-size: 0.85rem; display: block; text-decoration: none;">
+            &larr; Public Website
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('logout') }}" style="padding: 0.6rem 1.35rem; color: #E58888; font-size: 0.85rem; display: block; text-decoration: none;">
+            Sign Out
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Admin Main Body -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <span style="font-size: 0.88rem; color: var(--text-muted);">Signed in as Administrator:</span>
+          <strong style="color: var(--color-italian-roast); margin-left: 0.35rem;">{{ session.get('user_name', 'Admin') }}</strong>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline">View Site</a>
+          <a href="{{ url_for('logout') }}" class="btn btn-sm btn-danger">Log Out</a>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

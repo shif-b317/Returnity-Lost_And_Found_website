@@ -1,0 +1,270 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Review Claim #CLM-{{ claim.id }} - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="{{ url_for('admin_claims') }}" style="color: var(--color-boho); font-size: 0.88rem;">
+    &larr; Back to Claims List
+  </a>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">Claim Assessment</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">
+      Review Claim #CLM-{{ claim.id }}
+    </h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Item: <strong>{{ item.item_name }}</strong> (#{{ claim.item_type|upper }}-{{ item.id }})
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.5rem; align-items: center;">
+    {% if claim.status == 'Approved' %}
+      <span class="badge badge-approved" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">Approved</span>
+    {% elif claim.status == 'Rejected' %}
+      <span class="badge badge-rejected" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">Rejected</span>
+    {% elif claim.status == 'Additional Information Required' %}
+      <span class="badge badge-pending" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">Info Requested</span>
+    {% else %}
+      <span class="badge badge-review" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">{{ claim.status }}</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Grid Layout: Evaluation Scorecard & Claimant Info -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-bottom: 2rem;">
+  
+  <!-- Verification Score Card -->
+  <div class="card" style="border-top: 4px solid var(--color-rubine);">
+    <div class="card-header">
+      <h3 style="font-size: 1.15rem; margin-bottom: 0;">Rule-Based Verification Metric</h3>
+      <span class="badge {% if claim.verification_score >= 80 %}badge-strong{% elif claim.verification_score >= 60 %}badge-needs-review{% else %}badge-low-conf{% endif %}">
+        {{ claim.confidence_level }}
+      </span>
+    </div>
+    <div class="card-body">
+      <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem;">
+        <span style="font-family: var(--font-serif); font-size: 2.8rem; font-weight: 700; color: var(--color-italian-roast); line-height: 1;">
+          {{ claim.verification_score }}
+        </span>
+        <span style="font-size: 1.2rem; color: var(--text-muted);">/ 100 Points</span>
+      </div>
+
+      <!-- Score Breakdown -->
+      {% if score_breakdown %}
+        <h4 style="font-size: 0.92rem; color: var(--color-boho); margin-bottom: 0.5rem;">Score Computation Factors:</h4>
+        <ul style="list-style: none; font-size: 0.88rem; margin-bottom: 1rem;">
+          {% for factor in score_breakdown %}
+            <li style="padding: 0.35rem 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between;">
+              <span>{{ factor.rule }}</span>
+              <strong style="color: {{ 'green' if factor.points > 0 else 'red' }};">
+                {{ '+' if factor.points > 0 else '' }}{{ factor.points }}
+              </strong>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <!-- Flagged Anomaly Alerts -->
+      {% if claim.suspicious_flag or flags %}
+        <div style="background-color: #FFF5F5; border-left: 3px solid var(--color-rubine); padding: 0.75rem 1rem; border-radius: 4px;">
+          <strong style="color: var(--color-rubine); font-size: 0.88rem;">Suspicious Anomaly Indicators:</strong>
+          <ul style="margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-primary); margin-top: 0.25rem;">
+            {% for flag in flags %}
+              <li>{{ flag }}</li>
+            {% endfor %}
+            {% if claim.suspicious_reasons and not flags %}
+              <li>{{ claim.suspicious_reasons }}</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% else %}
+        <div style="background-color: #F2F8F4; border-left: 3px solid #245A2C; padding: 0.65rem 0.85rem; font-size: 0.85rem; color: #245A2C; border-radius: 4px;">
+          No suspicious velocity patterns or contradictory flags detected.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Claimant Information Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="font-size: 1.15rem; margin-bottom: 0;">Claimant Profile & Record</h3>
+    </div>
+    <div class="card-body">
+      <table class="detail-table" style="margin-top: 0;">
+        <tbody>
+          <tr>
+            <th>Claimant Name</th>
+            <td>{{ claimant.full_name }}</td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td>{{ claimant.email }}</td>
+          </tr>
+          <tr>
+            <th>Phone</th>
+            <td>{{ claimant.phone or 'Not provided' }}</td>
+          </tr>
+          <tr>
+            <th>Account Registered</th>
+            <td>{{ claimant.created_at.strftime('%d %b %Y') if claimant.created_at else '' }}</td>
+          </tr>
+          <tr>
+            <th>Total Claims Filed</th>
+            <td>{{ claimant_history.total_claims }} ({{ claimant_history.rejected_claims }} rejected)</td>
+          </tr>
+          <tr>
+            <th>Submission Time</th>
+            <td>{{ claim.created_at.strftime('%d %b %Y, %I:%M %p') if claim.created_at else '' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Comparison Section: Claimant Answers vs Original Private Data -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 style="font-size: 1.2rem; margin-bottom: 0; color: var(--color-italian-roast);">
+      Verification Comparison: Claimant Answers vs Reporter Records
+    </h3>
+  </div>
+  <div class="card-body">
+    
+    {% if claim.item_type == 'lost' %}
+      <!-- Item is a Lost Report: Display Private Verification Record recorded by Original Owner -->
+      <div class="verification-box" style="margin-bottom: 1.5rem;">
+        <h4 style="color: var(--color-tamarind); font-size: 1.05rem; margin-bottom: 0.5rem;">
+          Original Reporter Private Verification Details (Confidential)
+        </h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+          <div>
+            <strong>Private Identifying Detail:</strong>
+            <p style="background: #FFFFFF; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-subtle); margin-top: 0.25rem;">
+              {{ item.private_identifying_detail }}
+            </p>
+          </div>
+          <div>
+            <strong>Distinctive Markings:</strong>
+            <p style="background: #FFFFFF; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-subtle); margin-top: 0.25rem;">
+              {{ item.private_distinctive_characteristic or 'None provided' }}
+            </p>
+          </div>
+          <div>
+            <strong>Specific Contents:</strong>
+            <p style="background: #FFFFFF; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-subtle); margin-top: 0.25rem;">
+              {{ item.private_contents or 'None provided' }}
+            </p>
+          </div>
+          <div>
+            <strong>Serial / Identifier:</strong>
+            <p style="background: #FFFFFF; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-subtle); margin-top: 0.25rem;">
+              {{ item.private_serial_or_id or 'None provided' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <!-- Item is a Found Report -->
+      <div class="privacy-callout" style="margin-bottom: 1.5rem;">
+        <h4 style="color: var(--color-tamarind); font-size: 1.05rem; margin-bottom: 0.35rem;">
+          Found Item Custody Notes
+        </h4>
+        <p style="font-size: 0.9rem;">
+          <strong>Safe Custody:</strong> {{ item.custody_location or 'Not specified' }} |
+          <strong>Finder Private Notes:</strong> {{ item.private_finder_notes or 'None' }}
+        </p>
+      </div>
+    {% endif %}
+
+    <!-- Claimant Submitted Answers Table -->
+    <h4 style="font-size: 1.1rem; color: var(--color-tamarind); margin-bottom: 0.75rem;">Submitted Claimant Answers:</h4>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 35%;">Question</th>
+            <th>Claimant Response</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ans in claim_answers %}
+            <tr>
+              <td><strong>{{ ans.question_text }}</strong></td>
+              <td style="white-space: pre-line; line-height: 1.5;">{{ ans.answer_text }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Supplementary Information Response (If previously requested) -->
+    {% if claim.additional_info_provided %}
+      <div style="margin-top: 1.5rem; background-color: #F8F3ED; padding: 1.25rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-boho);">
+        <h4 style="color: var(--color-tamarind); margin-bottom: 0.35rem;">Claimant Reply to Admin Inquiry:</h4>
+        <p style="font-size: 0.92rem; white-space: pre-line;">{{ claim.additional_info_provided }}</p>
+      </div>
+    {% endif %}
+
+    <!-- Uploaded Ownership Evidence -->
+    <div style="margin-top: 1.75rem;">
+      <h4 style="font-size: 1.1rem; color: var(--color-tamarind); margin-bottom: 0.5rem;">Ownership Evidence Documents:</h4>
+      {% if evidence_files %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+          {% for ev in evidence_files %}
+            <div style="border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-md); background: #FFFFFF;">
+              <strong style="font-size: 0.92rem; display: block; margin-bottom: 0.25rem;">{{ ev.original_filename }}</strong>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">{{ ev.description or 'Evidence attachment' }}</p>
+              <a href="{{ url_for('view_protected_evidence', filename=ev.file_path) }}" target="_blank" class="btn btn-sm btn-outline">
+                Open Protected Document
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="font-size: 0.88rem; color: var(--text-muted);">No external proof or purchase receipts uploaded with this claim.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Admin Action Form -->
+<div class="form-card" style="border-top: 4px solid var(--color-boho);">
+  <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--color-italian-roast);">
+    Execute Administrator Decision
+  </h3>
+  <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+    Actions will update claim status, item availability, and record an immutable entry in the system audit log.
+  </p>
+
+  <form action="{{ url_for('admin_claim_action', claim_id=claim.id) }}" method="POST">
+    <div class="form-group">
+      <label for="adminNotes">Administrative Review Notes</label>
+      <textarea id="adminNotes" name="admin_notes" class="form-control" rows="3" placeholder="Enter findings, justification for decision, or specific items to request from claimant...">{{ claim.admin_notes or '' }}</textarea>
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 1.5rem;">
+      <button type="submit" name="action" value="approve" class="btn btn-primary btn-lg" data-confirm="Approve this claim and verify ownership? The item will be updated to Claimed/Returned.">
+        Approve Claim
+      </button>
+
+      <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg" data-confirm="Reject this claim? The claimant will be informed.">
+        Reject Claim
+      </button>
+
+      <button type="submit" name="action" value="request_info" class="btn btn-secondary btn-lg">
+        Request More Information
+      </button>
+
+      <button type="submit" name="action" value="under_review" class="btn btn-outline btn-lg">
+        Keep Under Review
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

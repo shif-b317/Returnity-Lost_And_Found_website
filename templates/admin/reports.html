@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+
+{% block title %}All Reports - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">Listing Administration</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">All Incident Reports</h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Manage active and resolved lost and found reports across the system.
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <a href="{{ url_for('admin_lost_items') }}" class="btn btn-sm btn-outline">Lost Only</a>
+    <a href="{{ url_for('admin_found_items') }}" class="btn btn-sm btn-outline">Found Only</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    {% if reports %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ref ID</th>
+              <th>Type</th>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Reported By</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rep in reports %}
+              <tr>
+                <td><strong>#{{ rep.item_type|upper }}-{{ rep.id }}</strong></td>
+                <td>
+                  <span class="badge {{ 'badge-rejected' if rep.item_type == 'lost' else 'badge-review' }}">
+                    {{ rep.item_type|upper }}
+                  </span>
+                </td>
+                <td>
+                  <a href="{{ url_for('item_details', item_type=rep.item_type, item_id=rep.id) }}" target="_blank" style="font-weight: 600;">
+                    {{ rep.item_name }}
+                  </a>
+                </td>
+                <td>{{ rep.category_name }}</td>
+                <td>{{ rep.reporter_name }}</td>
+                <td style="white-space: nowrap; font-size: 0.82rem;">
+                  {{ rep.event_date.strftime('%d %b %Y') if rep.event_date else '' }}
+                </td>
+                <td>
+                  <span class="badge badge-active">{{ rep.status }}</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem;">
+                    <a href="{{ url_for('edit_report', item_type=rep.item_type, item_id=rep.id) }}" class="btn btn-sm btn-outline">
+                      Edit
+                    </a>
+                    <form action="{{ url_for('admin_delete_report', item_type=rep.item_type, item_id=rep.id) }}" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" data-confirm="Remove report #{{ rep.item_type|upper }}-{{ rep.id }} from system?">
+                        Remove
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        No reports currently recorded.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

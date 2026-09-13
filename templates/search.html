@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Search Items - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem;">
+  <div class="section-title-wrap" style="text-align: left; margin-bottom: 1.5rem;">
+    <span class="section-kicker">Database Directory</span>
+    <h1 class="section-title">Search Reported Items</h1>
+    <p class="section-desc" style="margin-left: 0;">
+      Filter through active lost and found reports using keywords, item classifications, geographical areas, or report dates.
+    </p>
+  </div>
+
+  <!-- Search and Filter Form -->
+  <div class="search-filter-box">
+    <form action="{{ url_for('search') }}" method="GET">
+      <div class="search-grid">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="searchQuery">Keyword or Item Name</label>
+          <input type="text" id="searchQuery" name="q" class="form-control" value="{{ query or '' }}" placeholder="e.g., iPhone 13, blue wallet, titan watch...">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="categorySelect">Category</label>
+          <select id="categorySelect" name="category" class="form-control">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if selected_category == cat.id|string %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="typeSelect">Listing Type</label>
+          <select id="typeSelect" name="type" class="form-control">
+            <option value="">Both Types</option>
+            <option value="lost" {% if selected_type == 'lost' %}selected{% endif %}>Lost Items</option>
+            <option value="found" {% if selected_type == 'found' %}selected{% endif %}>Found Items</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="locationQuery">Location</label>
+          <input type="text" id="locationQuery" name="location" class="form-control" value="{{ selected_location or '' }}" placeholder="e.g., Library, Metro, Canteen...">
+        </div>
+
+        <div>
+          <button type="submit" class="btn btn-primary btn-block">Filter</button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+        <div style="font-size: 0.88rem; color: var(--text-secondary);">
+          Found <strong>{{ total_results }}</strong> matching report{{ 's' if total_results != 1 else '' }} in database
+        </div>
+        <div>
+          <a href="{{ url_for('search') }}" class="btn btn-sm btn-outline">Clear Filters</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Grid -->
+  {% if items %}
+    <div class="item-grid">
+      {% for item in items %}
+        <div class="card item-card">
+          <div class="item-card-media">
+            {% if item.safe_image_path %}
+              <img src="{{ url_for('uploaded_item_file', filename=item.safe_image_path) }}" alt="{{ item.item_name }}">
+            {% else %}
+              <div class="item-card-placeholder">
+                <span>{{ item.category_name }}</span>
+              </div>
+            {% endif %}
+            
+            {% if item.item_type == 'lost' %}
+              <span class="item-type-badge item-type-lost">Lost</span>
+            {% else %}
+              <span class="item-type-badge item-type-found">Found</span>
+            {% endif %}
+
+            <span class="item-status-badge">{{ item.status }}</span>
+          </div>
+
+          <div class="item-card-content">
+            <div class="item-card-meta">
+              <span>{{ item.category_name }}</span>
+              <span>•</span>
+              <span>{{ item.event_date.strftime('%d %b %Y') if item.event_date else 'Date logged' }}</span>
+            </div>
+            <h3 class="item-card-title">{{ item.item_name }}</h3>
+            <p class="item-card-desc">{{ item.description }}</p>
+
+            <div class="item-card-details">
+              <div class="item-card-details-row">
+                <strong style="color: var(--color-boho);">Area:</strong>
+                <span>{{ item.location }}</span>
+              </div>
+              <div style="margin-top: 0.85rem;">
+                <a href="{{ url_for('item_details', item_type=item.item_type, item_id=item.id) }}" class="btn btn-sm btn-outline btn-block">
+                  View Details & Verify
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="form-card" style="text-align: center; padding: 3.5rem 2rem;">
+      <h3 style="color: var(--color-boho); margin-bottom: 0.75rem;">No Matching Items Discovered</h3>
+      <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;">
+        No active listings matched your specific filter criteria. You may try broadening your search or report the item directly.
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('search') }}" class="btn btn-outline">Reset Filters</a>
+        <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report a Lost Item</a>
+        <a href="{{ url_for('report_found') }}" class="btn btn-secondary">Report a Found Item</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

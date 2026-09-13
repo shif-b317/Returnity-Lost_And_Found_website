@@ -1,0 +1,80 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Lost Items (Private Data) - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">Confidential Verification Repository</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Lost Item Listings & Private Markers</h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Authorized administrative inspection of stored private verification markers for lost item reports.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    {% if lost_items %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Item Title</th>
+              <th>Reporter</th>
+              <th>Date Lost</th>
+              <th>Location</th>
+              <th>Confidential Identifying Detail</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in lost_items %}
+              <tr>
+                <td><strong>#LOST-{{ item.id }}</strong></td>
+                <td>
+                  <a href="{{ url_for('item_details', item_type='lost', item_id=item.id) }}" target="_blank" style="font-weight: 600;">
+                    {{ item.item_name }}
+                  </a>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.category_name }}</div>
+                </td>
+                <td>
+                  <div>{{ item.reporter_name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.reporter_email }}</div>
+                </td>
+                <td style="white-space: nowrap; font-size: 0.82rem;">{{ item.date_lost.strftime('%d %b %Y') if item.date_lost else '' }}</td>
+                <td>{{ item.location_lost }}</td>
+                <td style="max-width: 280px; font-size: 0.85rem; color: var(--color-tamarind); background-color: #FFFDF9;">
+                  <strong>Private Detail:</strong> {{ item.private_identifying_detail }}
+                  {% if item.private_serial_or_id %}
+                    <br><strong>Serial/ID:</strong> {{ item.private_serial_or_id }}
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge badge-active">{{ item.status }}</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem;">
+                    <a href="{{ url_for('edit_report', item_type='lost', item_id=item.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                    <form action="{{ url_for('admin_delete_report', item_type='lost', item_id=item.id) }}" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" data-confirm="Delete lost report #LOST-{{ item.id }}?">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        No lost item reports found in database.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

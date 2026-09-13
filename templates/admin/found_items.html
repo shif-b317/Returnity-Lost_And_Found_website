@@ -1,0 +1,80 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Found Items (Custody) - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">Discovered Property Records</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Found Items & Safe Custody Tracking</h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Monitor discovered articles logged by good Samaritans and verify storage locations.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    {% if found_items %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Item Title</th>
+              <th>Finder</th>
+              <th>Date Found</th>
+              <th>Location Discovered</th>
+              <th>Current Custody</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in found_items %}
+              <tr>
+                <td><strong>#FOUND-{{ item.id }}</strong></td>
+                <td>
+                  <a href="{{ url_for('item_details', item_type='found', item_id=item.id) }}" target="_blank" style="font-weight: 600;">
+                    {{ item.item_name }}
+                  </a>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.category_name }}</div>
+                </td>
+                <td>
+                  <div>{{ item.reporter_name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.reporter_email }}</div>
+                </td>
+                <td style="white-space: nowrap; font-size: 0.82rem;">{{ item.date_found.strftime('%d %b %Y') if item.date_found else '' }}</td>
+                <td>{{ item.location_found }}</td>
+                <td>
+                  <strong style="color: var(--color-tamarind);">{{ item.custody_location or 'Unspecified' }}</strong>
+                  {% if item.private_finder_notes %}
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Note: {{ item.private_finder_notes }}</div>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge badge-active">{{ item.status }}</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 0.4rem;">
+                    <a href="{{ url_for('edit_report', item_type='found', item_id=item.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                    <form action="{{ url_for('admin_delete_report', item_type='found', item_id=item.id) }}" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-danger" data-confirm="Delete found report #FOUND-{{ item.id }}?">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        No found item reports found in database.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

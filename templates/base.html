@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}RETURNITY - Lost and Found Management System{% endblock %}</title>
+  
+  <!-- Favicon References -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}">
+  <link rel="alternate icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/favicon.png') }}">
+  
+  <!-- Main Brand Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Site Navigation Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar" aria-label="Main Navigation">
+        <a href="{{ url_for('index') }}" class="brand-link">
+          <img src="{{ url_for('static', filename='images/logo_icon.svg') }}" alt="RETURNITY Emblem" class="brand-logo-img">
+          <div class="brand-text-wrap">
+            <span class="brand-name">RETURNITY</span>
+            <span class="brand-tagline">Lost it? Return to it.</span>
+          </div>
+        </a>
+
+        <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle Navigation Menu">
+          ☰
+        </button>
+
+        <ul class="nav-links" id="mainNavLinks">
+          <li><a href="{{ url_for('index') }}" class="nav-link {% if active_page == 'home' %}active{% endif %}">Home</a></li>
+          <li><a href="{{ url_for('search') }}" class="nav-link {% if active_page == 'search' %}active{% endif %}">Search Items</a></li>
+          <li><a href="{{ url_for('report_lost') }}" class="nav-link {% if active_page == 'lost' %}active{% endif %}">Report Lost</a></li>
+          <li><a href="{{ url_for('report_found') }}" class="nav-link {% if active_page == 'found' %}active{% endif %}">Report Found</a></li>
+          <li><a href="{{ url_for('about') }}" class="nav-link {% if active_page == 'about' %}active{% endif %}">About</a></li>
+
+          {% if session.get('user_id') %}
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+            <li><a href="{{ url_for('my_reports') }}" class="nav-link {% if active_page == 'my_reports' %}active{% endif %}">My Reports</a></li>
+            <li><a href="{{ url_for('my_claims') }}" class="nav-link {% if active_page == 'my_claims' %}active{% endif %}">My Claims</a></li>
+            <li><a href="{{ url_for('profile') }}" class="nav-link {% if active_page == 'profile' %}active{% endif %}">Profile</a></li>
+            
+            {% if session.get('user_role') == 'admin' %}
+              <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link btn btn-sm btn-outline-light">Admin Panel</a></li>
+            {% endif %}
+
+            <li><a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-light">Logout</a></li>
+          {% else %}
+            <li><a href="{{ url_for('login') }}" class="nav-link {% if active_page == 'login' %}active{% endif %}">Login</a></li>
+            <li><a href="{{ url_for('register') }}" class="btn btn-sm btn-primary">Register</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Flash Messaging System -->
+  <div class="container" style="margin-top: 1.5rem;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} d-flex justify-content-between align-items-center" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" class="alert-close-btn" style="background:none; border:none; float:right; cursor:pointer; font-weight:bold; color:inherit;">✕</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Primary Page Body -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <img src="{{ url_for('static', filename='images/logo_icon.svg') }}" alt="RETURNITY Logo" style="height: 38px; width: auto;">
+            <span class="footer-brand-title">RETURNITY</span>
+          </div>
+          <p class="footer-text" style="margin-bottom: 0.75rem;">
+            A structured Lost and Found Management Platform facilitating the safe recovery of misplaced belongings through verification and administrator review.
+          </p>
+          <p class="footer-text" style="font-style: italic; color: var(--color-camel);">
+            "Lost it? Return to it."
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('search') }}">Search Items</a></li>
+            <li><a href="{{ url_for('report_lost') }}">Report Lost Item</a></li>
+            <li><a href="{{ url_for('report_found') }}">Report Found Item</a></li>
+            <li><a href="{{ url_for('about') }}">About RETURNITY</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Account & Trust</h4>
+          <ul class="footer-links">
+            {% if session.get('user_id') %}
+              <li><a href="{{ url_for('dashboard') }}">User Dashboard</a></li>
+              <li><a href="{{ url_for('my_reports') }}">My Reports</a></li>
+              <li><a href="{{ url_for('my_claims') }}">My Claims</a></li>
+              <li><a href="{{ url_for('profile') }}">Profile Settings</a></li>
+            {% else %}
+              <li><a href="{{ url_for('login') }}">User Login</a></li>
+              <li><a href="{{ url_for('register') }}">Create Account</a></li>
+              <li><a href="{{ url_for('admin_login') }}">Administrator Access</a></li>
+            {% endif %}
+            <li><a href="{{ url_for('terms') }}">Terms and Conditions</a></li>
+            <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">System Safeguards</h4>
+          <p class="footer-text" style="margin-bottom: 0.75rem;">
+            RETURNITY protects community listings by separating public item information from private verification markers. Unsubstantiated claims undergo administrator review.
+          </p>
+          <p class="footer-text" style="font-size: 0.8rem; color: var(--color-camel);">
+            MCA Academic Project: Modern Web Architecture with Python Flask and MySQL.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 RETURNITY. All rights reserved.
+        </div>
+        <div>
+          <span>Designed with Brand Reference: Camel Coat, Boho, Rubine, Tamarind, Italian Roast</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vanilla Scripts -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

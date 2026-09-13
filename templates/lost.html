@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Report Lost Item - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div class="section-title-wrap" style="text-align: left; margin-bottom: 1.75rem;">
+    <span class="section-kicker">Incident Logging</span>
+    <h1 class="section-title">Report a Lost Belonging</h1>
+    <p class="section-desc" style="margin-left: 0;">
+      Provide essential information about your misplaced item. Notice that your input is divided into publicly visible details and private verification criteria.
+    </p>
+  </div>
+
+  <form action="{{ url_for('report_lost') }}" method="POST" enctype="multipart/form-data" class="form-card">
+    
+    <!-- Section 1: Public Information -->
+    <div style="border-bottom: 2px solid var(--border-subtle); padding-bottom: 1.25rem; margin-bottom: 2rem;">
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-bottom: 0.35rem;">
+        Part 1: Public Listing Information
+      </h2>
+      <p style="font-size: 0.88rem; color: var(--text-secondary);">
+        These details will be displayed publicly in directory listings and search results to help finders identify the item.
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="itemName">Item Name or Title <span class="required-asterisk">*</span></label>
+      <input type="text" id="itemName" name="item_name" class="form-control" placeholder="e.g., Apple iPhone 13 (Midnight), Brown Leather Bifold Wallet" required>
+      <span class="form-help">Keep the title concise and descriptive.</span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="itemCategory">Item Category <span class="required-asterisk">*</span></label>
+        <select id="itemCategory" name="category_id" class="form-control" required>
+          <option value="">Select Category</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="dateLost">Date Lost <span class="required-asterisk">*</span></label>
+        <input type="date" id="dateLost" name="date_lost" class="form-control" data-max-today required>
+        <span class="form-help">Approximate or exact date of loss.</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="approxTime">Approximate Time</label>
+        <input type="text" id="approxTime" name="approximate_time" class="form-control" placeholder="e.g., Morning around 10:30 AM, Afternoon lecture">
+      </div>
+
+      <div class="form-group">
+        <label for="locationLost">General Location Lost <span class="required-asterisk">*</span></label>
+        <input type="text" id="locationLost" name="location_lost" class="form-control" placeholder="e.g., Central University Library, 2nd Floor Reading Room" required>
+        <span class="form-help">Mention the general vicinity without revealing minute private markers.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="publicDescription">General Description <span class="required-asterisk">*</span></label>
+      <textarea id="publicDescription" name="description" class="form-control" rows="3" placeholder="Describe the physical appearance, color, brand, and general condition visible from the exterior." required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="safeImage">Safe Public Photograph (Optional)</label>
+      <input type="file" id="safeImage" name="safe_image" class="form-control" accept=".jpg,.jpeg,.png,.webp" data-preview-target="imagePreviewContainer">
+      <span class="form-help">Upload an exterior photograph. Formats: JPG, PNG, WEBP. Max size: 5 MB. Do not display serial numbers in this image.</span>
+      <div id="imagePreviewContainer"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="additionalInfo">Additional Public Remarks (Optional)</label>
+      <input type="text" id="additionalInfo" name="additional_info" class="form-control" placeholder="Any additional context useful for honest finders">
+    </div>
+
+    <!-- Section 2: Private Verification Information -->
+    <div class="verification-box" style="margin-top: 2rem;">
+      <div class="verification-box-title">
+        Part 2: Private Ownership Verification Information
+      </div>
+      <div class="verification-box-text">
+        <strong>Confidential Notice:</strong> The information entered in this section is encrypted and stored strictly for ownership validation. It will NEVER be published on the website or revealed to claimants.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="privateIdentifyingDetail">
+        Private Identifying Detail <span class="required-asterisk">*</span>
+      </label>
+      <textarea id="privateIdentifyingDetail" name="private_identifying_detail" class="form-control" rows="2" placeholder="Describe a distinctive marking known only to you. Examples: specific scratch on lower right bezel, unique keychain attached, custom sticker inside cover." required></textarea>
+      <span class="form-help">This is the key benchmark for validating genuine ownership when an item is discovered.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="privateDistinctive">Secondary Marks or Customizations</label>
+      <textarea id="privateDistinctive" name="private_distinctive_characteristic" class="form-control" rows="2" placeholder="Describe any additional identifying attributes: lock screen wallpaper description, case color/brand, unique wear patterns."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="privateContents">Specific Contents Inside</label>
+        <input type="text" id="privateContents" name="private_contents" class="form-control" placeholder="e.g., 3 debit cards (names obscured), blue pilot pen, college receipt">
+      </div>
+
+      <div class="form-group">
+        <label for="privateSerial">Serial Number / IMEI (If Applicable)</label>
+        <input type="text" id="privateSerial" name="private_serial_or_id" class="form-control" placeholder="e.g., SN: FK12890X, IMEI ending in 4591">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="privateLocation">Exact Last Known Location</label>
+      <input type="text" id="privateLocation" name="private_exact_location" class="form-control" placeholder="e.g., Left armrest of Desk 42, near south window">
+    </div>
+
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+      <button type="submit" class="btn btn-primary btn-lg">Submit Lost Item Report</button>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="margin-left: 0.75rem;">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

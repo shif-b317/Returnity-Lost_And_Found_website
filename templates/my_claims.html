@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}My Claims - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="section-kicker">Tracking & Verification</span>
+      <h1 class="section-title" style="margin-bottom: 0;">My Submitted Claims</h1>
+    </div>
+    <div>
+      <a href="{{ url_for('search') }}" class="btn btn-primary">Search Directory</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 style="font-size: 1.25rem; margin-bottom: 0; color: var(--color-italian-roast);">Verification Submissions</h2>
+      <span class="badge badge-active">{{ claims|length }} Total</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      {% if claims %}
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Claim ID</th>
+                <th>Target Item</th>
+                <th>Type</th>
+                <th>Submission Date</th>
+                <th>Status</th>
+                <th>Details / Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for clm in claims %}
+                <tr>
+                  <td><strong>#CLM-{{ clm.id }}</strong></td>
+                  <td>
+                    <a href="{{ url_for('item_details', item_type=clm.item_type, item_id=clm.item_id) }}" style="font-weight: 600;">
+                      {{ clm.item_name }}
+                    </a>
+                  </td>
+                  <td>
+                    <span class="badge {{ 'badge-rejected' if clm.item_type == 'lost' else 'badge-review' }}">
+                      {{ clm.item_type|upper }}
+                    </span>
+                  </td>
+                  <td>{{ clm.created_at.strftime('%d %b %Y, %I:%M %p') if clm.created_at else '' }}</td>
+                  <td>
+                    {% if clm.status == 'Approved' %}
+                      <span class="badge badge-approved">Approved</span>
+                    {% elif clm.status == 'Rejected' %}
+                      <span class="badge badge-rejected">Rejected</span>
+                    {% elif clm.status == 'Additional Information Required' %}
+                      <span class="badge badge-pending">Additional Info Required</span>
+                    {% elif clm.status == 'Under Admin Review' %}
+                      <span class="badge badge-review">Under Review</span>
+                    {% else %}
+                      <span class="badge badge-review">{{ clm.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                      {% if clm.status == 'Additional Information Required' %}
+                        <a href="{{ url_for('claim_respond', claim_id=clm.id) }}" class="btn btn-sm btn-primary">
+                          Provide Info
+                        </a>
+                      {% else %}
+                        <a href="{{ url_for('item_details', item_type=clm.item_type, item_id=clm.item_id) }}" class="btn btn-sm btn-outline">
+                          View Listing
+                        </a>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% if clm.status == 'Additional Information Required' and clm.additional_info_requested %}
+                  <tr style="background-color: #FFF9F2;">
+                    <td colspan="6" style="padding: 0.75rem 1.25rem; font-size: 0.88rem; color: #8C5311; border-bottom: 2px solid #FED8A6;">
+                      <strong>Administrator Request:</strong> {{ clm.additional_info_requested }}
+                      <span style="margin-left: 1rem;">
+                        <a href="{{ url_for('claim_respond', claim_id=clm.id) }}" style="font-weight: 700; color: #8D3A3C;">Click here to reply</a>
+                      </span>
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+          <p style="margin-bottom: 1rem;">You have not submitted any claims yet.</p>
+          <a href="{{ url_for('search') }}" class="btn btn-outline">Browse Directory to Find Your Belonging</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

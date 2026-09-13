@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Report Found Item - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div class="section-title-wrap" style="text-align: left; margin-bottom: 1.75rem;">
+    <span class="section-kicker">Good Samaritan Intake</span>
+    <h1 class="section-title">Report a Discovered Item</h1>
+    <p class="section-desc" style="margin-left: 0;">
+      Thank you for assisting in reconnecting this article with its rightful owner. Please record the discovered item with basic public traits.
+    </p>
+  </div>
+
+  <div class="privacy-callout">
+    <div class="privacy-callout-title">Verification Best Practice</div>
+    <div class="privacy-callout-text">
+      Do not reveal every unique characteristic in the public description. Leaving subtle details unmentioned allows us to verify the authentic owner during the claim process.
+    </div>
+  </div>
+
+  <form action="{{ url_for('report_found') }}" method="POST" enctype="multipart/form-data" class="form-card">
+    <div class="form-group">
+      <label for="foundItemName">Item Name or Title <span class="required-asterisk">*</span></label>
+      <input type="text" id="foundItemName" name="item_name" class="form-control" placeholder="e.g., Wireless Earbuds in Black Case, Silver Wristwatch" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="foundCategory">Category <span class="required-asterisk">*</span></label>
+        <select id="foundCategory" name="category_id" class="form-control" required>
+          <option value="">Select Category</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="dateFound">Date Found <span class="required-asterisk">*</span></label>
+        <input type="date" id="dateFound" name="date_found" class="form-control" data-max-today required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="approxTimeFound">Approximate Time</label>
+        <input type="text" id="approxTimeFound" name="approximate_time" class="form-control" placeholder="e.g., Around 4:00 PM, After evening seminar">
+      </div>
+
+      <div class="form-group">
+        <label for="locationFound">Location Where Found <span class="required-asterisk">*</span></label>
+        <input type="text" id="locationFound" name="location_found" class="form-control" placeholder="e.g., Science Block Cafeteria, Table near counter" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="foundDescription">General Physical Appearance <span class="required-asterisk">*</span></label>
+      <textarea id="foundDescription" name="description" class="form-control" rows="3" placeholder="Provide general exterior traits (brand, primary color, size). Avoid disclosing specific private markings." required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="foundSafeImage">Photograph of Item (Optional)</label>
+      <input type="file" id="foundSafeImage" name="safe_image" class="form-control" accept=".jpg,.jpeg,.png,.webp" data-preview-target="foundImagePreview">
+      <span class="form-help">Exterior view only. Formats: JPG, PNG, WEBP. Max size: 5 MB.</span>
+      <div id="foundImagePreview"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="custodyLocation">Current Custody / Safe Storage Location</label>
+        <input type="text" id="custodyLocation" name="custody_location" class="form-control" placeholder="e.g., Deposited at Campus Security Desk, With Department Reception">
+        <span class="form-help">Where the item is held pending verified return.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="privateFinderNotes">Finder Private Notes (Confidential)</label>
+        <input type="text" id="privateFinderNotes" name="private_finder_notes" class="form-control" placeholder="Details visible only to administrative reviewers">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="foundAdditionalInfo">Additional Public Information (Optional)</label>
+      <input type="text" id="foundAdditionalInfo" name="additional_info" class="form-control" placeholder="Any additional logistics guidance for the owner">
+    </div>
+
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+      <button type="submit" class="btn btn-secondary btn-lg">Submit Found Item Report</button>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="margin-left: 0.75rem;">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

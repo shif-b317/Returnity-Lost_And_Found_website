@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.item_name }} - RETURNITY Details{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{{ url_for('search') }}" style="font-size: 0.9rem; color: var(--color-boho);">
+      &larr; Back to Item Directory
+    </a>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Media Column -->
+    <div>
+      <div class="detail-gallery">
+        {% if item.safe_image_path %}
+          <img src="{{ url_for('uploaded_item_file', filename=item.safe_image_path) }}" alt="{{ item.item_name }}" class="detail-main-img">
+        {% else %}
+          <div style="height: 320px; display: flex; align-items: center; justify-content: center; background-color: #EFECE6; color: var(--color-boho); font-family: var(--font-serif); font-size: 1.25rem;">
+            <span>No Public Photo Provided</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="card" style="margin-top: 1.5rem; padding: 1.25rem;">
+        <h4 style="font-size: 1rem; color: var(--color-tamarind); margin-bottom: 0.5rem;">Ownership Claim Notice</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+          To prevent fraudulent handovers, clicking "Claim This Item" requires answering specific verification questions regarding non-public markings, exact circumstances, and matching attributes.
+        </p>
+      </div>
+    </div>
+
+    <!-- Details Column -->
+    <div>
+      <div class="detail-info-card">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem;">
+          {% if item_type == 'lost' %}
+            <span class="badge badge-rejected" style="font-size: 0.82rem; text-transform: uppercase;">Lost Report</span>
+          {% else %}
+            <span class="badge badge-review" style="font-size: 0.82rem; text-transform: uppercase;">Found Report</span>
+          {% endif %}
+
+          <span class="badge badge-active">{{ item.status }}</span>
+        </div>
+
+        <h1 style="font-size: 2rem; margin-bottom: 1rem;">{{ item.item_name }}</h1>
+
+        <table class="detail-table">
+          <tbody>
+            <tr>
+              <th>Classification</th>
+              <td>{{ item.category_name }}</td>
+            </tr>
+            <tr>
+              <th>Date {{ 'Lost' if item_type == 'lost' else 'Discovered' }}</th>
+              <td>{{ item.event_date.strftime('%A, %d %B %Y') if item.event_date else 'Not recorded' }}</td>
+            </tr>
+            {% if item.approximate_time %}
+              <tr>
+                <th>Approximate Time</th>
+                <td>{{ item.approximate_time }}</td>
+              </tr>
+            {% endif %}
+            <tr>
+              <th>General Vicinity</th>
+              <td>{{ item.location }}</td>
+            </tr>
+            {% if item_type == 'found' and item.custody_location %}
+              <tr>
+                <th>Current Custody</th>
+                <td>{{ item.custody_location }}</td>
+              </tr>
+            {% endif %}
+            <tr>
+              <th>Report Reference</th>
+              <td>#{{ item_type|upper }}-{{ item.id }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 1.25rem;">
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Public Description</h3>
+          <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-line;">{{ item.description }}</p>
+        </div>
+
+        {% if item.additional_info %}
+          <div style="margin-top: 1.25rem;">
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Additional Notes</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">{{ item.additional_info }}</p>
+          </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+          {% if session.get('user_id') %}
+            {% if is_owner %}
+              <div class="alert alert-info" style="margin-bottom: 0;">
+                <strong>Your Listing:</strong> You created this report. You can manage or modify it from your
+                <a href="{{ url_for('my_reports') }}">My Reports</a> page.
+              </div>
+            {% elif item.status in ['Claimed', 'Returned', 'Closed'] %}
+              <div class="alert alert-warning" style="margin-bottom: 0;">
+                This listing is already marked as <strong>{{ item.status }}</strong>. Further ownership claims are restricted.
+              </div>
+            {% elif user_has_claimed %}
+              <div class="alert alert-info" style="margin-bottom: 0;">
+                You have already submitted a verification claim for this listing. Track its review status on
+                <a href="{{ url_for('my_claims') }}">My Claims</a>.
+              </div>
+            {% else %}
+              <a href="{{ url_for('submit_claim', item_type=item_type, item_id=item.id) }}" class="btn btn-primary btn-lg btn-block">
+                Claim This Item (Verify Ownership)
+              </a>
+              <span class="form-help" style="text-align: center; margin-top: 0.5rem;">
+                Initiates a structured verification request. All answers undergo review.
+              </span>
+            {% endif %}
+          {% else %}
+            <div style="text-align: center; background-color: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+              <p style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--color-italian-roast);">
+                Is this your belonging? Sign in to start the ownership verification process.
+              </p>
+              <a href="{{ url_for('login', next=request.path) }}" class="btn btn-primary">
+                Sign In to File Claim
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggested Matches Section (Rule-Based Matching Algorithm) -->
+  {% if potential_matches %}
+    <div style="margin-top: 3.5rem;">
+      <div class="section-title-wrap" style="text-align: left; margin-bottom: 1.5rem;">
+        <span class="section-kicker">Automated Decision Support</span>
+        <h2 class="section-title" style="font-size: 1.6rem;">Possible Matching Reports</h2>
+        <p class="section-desc" style="margin-left: 0;">
+          The system evaluated category, keyword alignment, location, and date proximity between database reports.
+        </p>
+      </div>
+
+      <div class="item-grid">
+        {% for match in potential_matches %}
+          {% set cand = match.item %}
+          <div class="card item-card">
+            <div class="item-card-media">
+              {% if cand.safe_image_path %}
+                <img src="{{ url_for('uploaded_item_file', filename=cand.safe_image_path) }}" alt="{{ cand.item_name }}">
+              {% else %}
+                <div class="item-card-placeholder">
+                  <span>{{ cand.category_name }}</span>
+                </div>
+              {% endif %}
+              <span class="item-type-badge {{ 'item-type-found' if item_type == 'lost' else 'item-type-lost' }}">
+                {{ 'Found' if item_type == 'lost' else 'Lost' }}
+              </span>
+              <span class="item-status-badge" style="background-color: var(--color-tamarind); color: var(--color-camel);">
+                {{ match.score }}% Match
+              </span>
+            </div>
+
+            <div class="item-card-content">
+              <div class="item-card-meta">
+                <span>{{ cand.category_name }}</span>
+                <span>•</span>
+                <span>{{ ', '.join(match.reasons) }}</span>
+              </div>
+              <h3 class="item-card-title">{{ cand.item_name }}</h3>
+              <p class="item-card-desc">{{ cand.description }}</p>
+              <div class="item-card-details">
+                <a href="{{ url_for('item_details', item_type='found' if item_type == 'lost' else 'lost', item_id=cand.id) }}" class="btn btn-sm btn-outline btn-block">
+                  Inspect Comparison
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

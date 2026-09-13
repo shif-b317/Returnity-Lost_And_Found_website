@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - RETURNITY{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <div class="card" style="padding: 2.5rem 3rem;">
+    <span class="section-kicker">Data Protection</span>
+    <h1 style="font-size: 2.2rem; margin-bottom: 1.25rem;">Privacy Policy</h1>
+    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2rem;">
+      Last Updated: September 2026 | Governing the collection and protection of user records on RETURNITY.
+    </p>
+
+    <div style="color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;">
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">1. Information We Collect</h2>
+      <p>
+        RETURNITY collects only information essential for verifying ownership and managing item recovery:
+      </p>
+      <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+        <li><strong>Account Data:</strong> Full name, verified email address, optional contact telephone number, and cryptographic password hash.</li>
+        <li><strong>Public Item Data:</strong> General item title, classification, approximate date, general vicinity, and safe exterior photographs.</li>
+        <li><strong>Private Verification Data:</strong> Confidential identifying characteristics, hidden markings, serial numbers, and specific item contents.</li>
+        <li><strong>Ownership Evidence:</strong> User-submitted receipts, invoices, warranty documents, and packaging photographs.</li>
+      </ul>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">2. Why Information Is Collected</h2>
+      <p>
+        Collected information is utilized strictly to:
+      </p>
+      <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+        <li>Operate the lost and found directory and item search facilities.</li>
+        <li>Authenticate users and protect against account hijacking.</li>
+        <li>Compute rule-based Claim Verification Scores to assist administrators.</li>
+        <li>Safely reconnect authentic owners with misplaced property.</li>
+      </ul>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">3. Data Segregation: Public vs Private</h2>
+      <p>
+        RETURNITY operates on a strict data isolation model. Private verification details and claimant proof are isolated in protected server directories and restricted MySQL fields. They are accessible solely to authenticated administrators and are never indexed or exposed to public web visitors.
+      </p>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">4. Storage of Sensitive Ownership Evidence</h2>
+      <p>
+        Ownership proof files are stored in an isolated filesystem location outside the public web root. Access to these documents is controlled via server-side authorization checks ensuring only the uploading claimant and authorized administrators may view them.
+      </p>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">5. Third-Party Data Sharing</h2>
+      <p>
+        RETURNITY does not sell, rent, monetize, or trade user records with third-party advertisers or data brokers. Data is accessed solely for the operational management of the platform.
+      </p>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">6. Data Security Practices</h2>
+      <p>
+        We employ industry standard security practices including Werkzeug password hashing (using modern key derivation), parameterized SQL queries to eliminate SQL injection, server-side session authentication, and file type validation.
+      </p>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">7. User Rights & Account Management</h2>
+      <p>
+        Users have the right to inspect their active listings, review their claim submissions, and update their personal account information via their user profile. If you wish to delete your account or specific reports, you can do so directly from your dashboard or contact administration.
+      </p>
+
+      <h2 style="font-size: 1.35rem; color: var(--color-tamarind); margin-top: 1.5rem; margin-bottom: 0.5rem;">8. Contact Our Privacy Lead</h2>
+      <p>
+        For inquiries or clarifications regarding data governance on RETURNITY, please email: <strong>privacy@returnity.org</strong> or <strong>admin@returnity.org</strong>.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

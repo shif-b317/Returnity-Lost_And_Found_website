@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+
+{% block title %}User Accounts - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">User Governance</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Registered User Accounts</h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Monitor registered user community, manage account states, and track reporting history.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td><strong>#USR-{{ u.id }}</strong></td>
+              <td>{{ u.full_name }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.phone or 'N/A' }}</td>
+              <td>
+                <span class="badge {{ 'badge-review' if u.role == 'admin' else 'badge-active' }}">
+                  {{ u.role|upper }}
+                </span>
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span class="badge badge-approved">Active</span>
+                {% else %}
+                  <span class="badge badge-rejected">Suspended</span>
+                {% endif %}
+              </td>
+              <td style="white-space: nowrap; font-size: 0.82rem;">
+                {{ u.created_at.strftime('%d %b %Y') if u.created_at else '' }}
+              </td>
+              <td>
+                {% if u.id != session.get('user_id') %}
+                  <form action="{{ url_for('admin_toggle_user', user_id=u.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-sm {{ 'btn-danger' if u.is_active else 'btn-secondary' }}" data-confirm="Toggle status for user {{ u.full_name }}?">
+                      {{ 'Suspend' if u.is_active else 'Reactivate' }}
+                    </button>
+                  </form>
+                {% else %}
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">(Current Session)</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

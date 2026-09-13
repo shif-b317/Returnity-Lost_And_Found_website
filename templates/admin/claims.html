@@ -1,0 +1,128 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Verification Claims - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <span class="section-kicker">Review Console</span>
+    <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Verification Claims Management</h1>
+    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+      Monitor ownership claims, inspect rule-based confidence indicators, and execute approvals or inquiries.
+    </p>
+  </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card" style="margin-bottom: 1.75rem; padding: 1rem 1.25rem;">
+  <form action="{{ url_for('admin_claims') }}" method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+    <div style="flex: 1; min-width: 200px;">
+      <select name="status" class="form-control" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        <option value="Pending Verification" {% if selected_status == 'Pending Verification' %}selected{% endif %}>Pending Verification</option>
+        <option value="Under Admin Review" {% if selected_status == 'Under Admin Review' %}selected{% endif %}>Under Admin Review</option>
+        <option value="Additional Information Required" {% if selected_status == 'Additional Information Required' %}selected{% endif %}>Additional Information Required</option>
+        <option value="Approved" {% if selected_status == 'Approved' %}selected{% endif %}>Approved</option>
+        <option value="Rejected" {% if selected_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+
+    <div style="flex: 1; min-width: 200px;">
+      <select name="risk" class="form-control" onchange="this.form.submit()">
+        <option value="">All Confidence Levels</option>
+        <option value="Strong Verification" {% if selected_risk == 'Strong Verification' %}selected{% endif %}>Strong Verification (80-100)</option>
+        <option value="Needs Review" {% if selected_risk == 'Needs Review' %}selected{% endif %}>Needs Review (60-79)</option>
+        <option value="Low Confidence" {% if selected_risk == 'Low Confidence' %}selected{% endif %}>Low Confidence (&lt;60)</option>
+      </select>
+    </div>
+
+    <div>
+      <a href="{{ url_for('admin_claims') }}" class="btn btn-sm btn-outline">Clear Filters</a>
+    </div>
+  </form>
+</div>
+
+<!-- Claims Table -->
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    {% if claims %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Claim ID</th>
+              <th>Item Target</th>
+              <th>Claimant</th>
+              <th>Score</th>
+              <th>Confidence Level</th>
+              <th>Flags</th>
+              <th>Status</th>
+              <th>Filed Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for clm in claims %}
+              <tr>
+                <td><strong>#CLM-{{ clm.id }}</strong></td>
+                <td>
+                  <a href="{{ url_for('admin_claim_review', claim_id=clm.id) }}" style="font-weight: 600;">
+                    {{ clm.item_name }}
+                  </a>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ clm.item_type|upper }} #{{ clm.item_id }}</div>
+                </td>
+                <td>
+                  <div>{{ clm.claimant_name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ clm.claimant_email }}</div>
+                </td>
+                <td>
+                  <strong style="font-size: 1.1rem; color: var(--color-italian-roast);">{{ clm.verification_score }}/100</strong>
+                </td>
+                <td>
+                  {% if clm.confidence_level == 'Strong Verification' %}
+                    <span class="badge badge-strong">Strong</span>
+                  {% elif clm.confidence_level == 'Needs Review' %}
+                    <span class="badge badge-needs-review">Needs Review</span>
+                  {% else %}
+                    <span class="badge badge-low-conf">Low Confidence</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if clm.suspicious_flag %}
+                    <span class="badge badge-rejected" title="{{ clm.suspicious_reasons }}">Flagged</span>
+                  {% else %}
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Clear</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if clm.status == 'Approved' %}
+                    <span class="badge badge-approved">Approved</span>
+                  {% elif clm.status == 'Rejected' %}
+                    <span class="badge badge-rejected">Rejected</span>
+                  {% elif clm.status == 'Additional Information Required' %}
+                    <span class="badge badge-pending">Info Requested</span>
+                  {% else %}
+                    <span class="badge badge-review">{{ clm.status }}</span>
+                  {% endif %}
+                </td>
+                <td style="white-space: nowrap; font-size: 0.82rem;">
+                  {{ clm.created_at.strftime('%d %b %Y') if clm.created_at else '' }}
+                </td>
+                <td>
+                  <a href="{{ url_for('admin_claim_review', claim_id=clm.id) }}" class="btn btn-sm btn-primary">
+                    Review
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        No claims found matching the specified parameters.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

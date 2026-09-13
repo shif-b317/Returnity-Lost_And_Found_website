@@ -1,0 +1,168 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard Overview - RETURNITY Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.75rem;">
+  <span class="section-kicker">Real-time Metrics</span>
+  <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">Administrator Operations Dashboard</h1>
+  <p style="font-size: 0.9rem; color: var(--text-secondary);">
+    Active database statistics and verification queues requiring manual review.
+  </p>
+</div>
+
+<!-- Real DB Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Users</div>
+    <div class="stat-value">{{ stats.total_users }}</div>
+  </div>
+  <div class="stat-card stat-card-boho">
+    <div class="stat-label">Lost Reports</div>
+    <div class="stat-value">{{ stats.total_lost }}</div>
+  </div>
+  <div class="stat-card stat-card-boho">
+    <div class="stat-label">Found Reports</div>
+    <div class="stat-value">{{ stats.total_found }}</div>
+  </div>
+  <div class="stat-card stat-card-tamarind">
+    <div class="stat-label">Pending Claims</div>
+    <div class="stat-value">{{ stats.pending_claims }}</div>
+  </div>
+  <div class="stat-card" style="border-top-color: #C2410C;">
+    <div class="stat-label">Needs Review / Suspicious</div>
+    <div class="stat-value">{{ stats.needs_review_count }}</div>
+  </div>
+  <div class="stat-card stat-card-camel">
+    <div class="stat-label">Returned Items</div>
+    <div class="stat-value">{{ stats.returned_items }}</div>
+  </div>
+</div>
+
+<!-- Claims Needing Review Section -->
+<div class="card" style="margin-bottom: 2.25rem;">
+  <div class="card-header">
+    <div>
+      <h2 style="font-size: 1.25rem; margin-bottom: 0; color: var(--color-italian-roast);">Verification Queue</h2>
+      <span style="font-size: 0.82rem; color: var(--text-muted);">Claims awaiting administrative review and scoring confirmation</span>
+    </div>
+    <a href="{{ url_for('admin_claims') }}" class="btn btn-sm btn-outline">View All Claims</a>
+  </div>
+  <div class="card-body" style="padding: 0;">
+    {% if pending_claims %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Claim ID</th>
+              <th>Target Item</th>
+              <th>Claimant</th>
+              <th>Score</th>
+              <th>Confidence / Risk</th>
+              <th>Flagged</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for clm in pending_claims %}
+              <tr>
+                <td><strong>#CLM-{{ clm.id }}</strong></td>
+                <td>
+                  <a href="{{ url_for('admin_claim_review', claim_id=clm.id) }}" style="font-weight: 600;">
+                    {{ clm.item_name }}
+                  </a>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ clm.item_type|upper }} #{{ clm.item_id }}</div>
+                </td>
+                <td>
+                  <div>{{ clm.claimant_name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ clm.claimant_email }}</div>
+                </td>
+                <td>
+                  <strong style="font-size: 1.05rem; color: var(--color-tamarind);">{{ clm.verification_score }}/100</strong>
+                </td>
+                <td>
+                  {% if clm.confidence_level == 'Strong Verification' %}
+                    <span class="badge badge-strong">Strong</span>
+                  {% elif clm.confidence_level == 'Needs Review' %}
+                    <span class="badge badge-needs-review">Needs Review</span>
+                  {% else %}
+                    <span class="badge badge-low-conf">Low Confidence</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if clm.suspicious_flag %}
+                    <span class="badge badge-rejected" title="{{ clm.suspicious_reasons }}">Flagged</span>
+                  {% else %}
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Normal</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge badge-pending">{{ clm.status }}</span>
+                </td>
+                <td>
+                  <a href="{{ url_for('admin_claim_review', claim_id=clm.id) }}" class="btn btn-sm btn-primary">
+                    Review Claim
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+        No claims currently pending administrative review.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Recent Audit Trail Section -->
+<div class="card">
+  <div class="card-header">
+    <h2 style="font-size: 1.25rem; margin-bottom: 0; color: var(--color-italian-roast);">Recent Security Audit Logs</h2>
+    <a href="{{ url_for('admin_audit_logs') }}" class="btn btn-sm btn-outline">Full Log Trail</a>
+  </div>
+  <div class="card-body" style="padding: 0;">
+    {% if recent_logs %}
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action Executed</th>
+              <th>Context</th>
+              <th>Operator</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in recent_logs %}
+              <tr>
+                <td style="white-space: nowrap; font-size: 0.82rem;">{{ log.created_at.strftime('%d %b %Y, %I:%M %p') if log.created_at else '' }}</td>
+                <td><strong>{{ log.action }}</strong></td>
+                <td>
+                  {% if log.claim_id %}
+                    Claim #CLM-{{ log.claim_id }}
+                  {% elif log.item_id %}
+                    {{ log.item_type|upper }} #{{ log.item_id }}
+                  {% else %}
+                    Global
+                  {% endif %}
+                </td>
+                <td>{{ log.user_name or 'System' }}</td>
+                <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ log.notes or '' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+        No audit entries recorded yet.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
