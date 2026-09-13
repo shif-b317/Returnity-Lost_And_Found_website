@@ -6,6 +6,11 @@
 RETURNITY is a modern, full-stack Lost and Found Management Platform developed with Python 3, Flask, and MySQL. It solves the vulnerability of conventional lost and found notice boards by segregating publicly visible listing attributes from confidential ownership verification markers, integrating a rule-based decision support scoring system, and empowering authorized administrators to evaluate claims with an immutable audit trail.
 
 ---
+##Links
+Website Link: http://127.0.0.1:5000
+Admin Login URL: http://127.0.0.1:5000/admin/login
+
+---
 
 ## 1. Key Platform Features
 
